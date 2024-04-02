@@ -10,34 +10,28 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.List;
 
 public class BlueToothFoundReceiver extends BroadcastReceiver {
     private BluetoothAdapter bluetoothAdapter;
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
-            BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
-            ScanCallback callback = new ScanCallback() {
-                @SuppressLint("MissingPermission")
-                @Override
-                public void onScanResult(int callbackType, ScanResult result) {
-                    BluetoothDevice device = result.getDevice();
-                    Log.e(BlueToothFoundReceiver.class.getName(), "发现设备" + device.getName());
-                }
+        if (intent.getAction().equals(BluetoothDevice.ACTION_FOUND)) {
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//            if (device.getBondState() != BluetoothDevice.BOND_BONDED){
+//
+//            }
 
-                @Override
-                public void onBatchScanResults(List<ScanResult> results) {
-                    super.onBatchScanResults(results);
-                }
-
-                @Override
-                public void onScanFailed(int errorCode) {
-                    super.onScanFailed(errorCode);
-                }
-            };
+            Log.d("BlueToothFoundReceiver", "onReceive: " + device.getName() + " " + device.getAddress());
+        }else if (intent.getAction().equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)){
+            Toast.makeText(context,"搜索完毕", Toast.LENGTH_SHORT).show();
+        }else if (intent.getAction().equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)){
+            Toast.makeText(context,"搜索开始", Toast.LENGTH_SHORT).show();
         }
-    }
+        }
 }
+
