@@ -1,8 +1,6 @@
 package com.example.demo1.javaApp;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresPermission;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -10,36 +8,32 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanResult;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.example.demo1.BaseActivity;
 import com.example.demo1.BroadcastReceiver.BlueToothFoundReceiver;
+import com.example.demo1.BroadcastReceiver.BlueToothStartedReceiver;
 import com.example.demo1.BroadcastReceiver.BluetoothOpenReceiver;
-import com.example.demo1.BroadcastReceiver.BluetoothStateReceiver;
 import com.example.demo1.R;
 import com.example.demo1.controller.BlueToothController;
-
-import java.util.List;
-import java.util.Set;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final int REQUEST_BLUETOOTH_SCAN_PERMISSION = 100;
     private static final int REQ_PERMISSION_CODE = 200;
     private BluetoothOpenReceiver bluetoothOpenReceiver;
+    private BlueToothStartedReceiver blueToothStartedReceiver;
     private BlueToothFoundReceiver blueToothFoundReceiver;
+
     private BlueToothController blueToothController;
     private Button button;
     private BluetoothAdapter bluetoothAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +41,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         setContentView(R.layout.activity_main);
         bluetoothOpenReceiver = new BluetoothOpenReceiver();
         registerReceiver(bluetoothOpenReceiver, new IntentFilter("openblue"));
+        blueToothStartedReceiver = new BlueToothStartedReceiver();
         blueToothFoundReceiver = new BlueToothFoundReceiver();
-        registerReceiver(blueToothFoundReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED));
+        registerReceiver(blueToothStartedReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED));
         initView();
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -113,9 +108,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 //                Intent intent = new Intent(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
 //                sendBroadcast(intent);
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1){
-                    bluetoothAdapter.startDiscovery(); //开始搜索
-                    registerReceiver(blueToothFoundReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+
                 }
+                bluetoothAdapter.startDiscovery(); //开始搜索
+                registerReceiver(blueToothFoundReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+
 
             }else {
                 Intent intent = new Intent("openblue");
@@ -130,6 +127,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(bluetoothOpenReceiver);
+        unregisterReceiver(blueToothFoundReceiver);
+        unregisterReceiver(blueToothStartedReceiver);
     }
 
     protected void showToast(String msg){
@@ -151,6 +150,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 }
                 break;
             case REQ_PERMISSION_CODE:
+                requestList.clear();
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     try {
                         Thread.sleep(0);
