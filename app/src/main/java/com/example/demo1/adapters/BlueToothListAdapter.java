@@ -13,7 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.demo1.R;
 import com.example.demo1.bean.BlueToothData;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import kotlin.collections.ArrayDeque;
 

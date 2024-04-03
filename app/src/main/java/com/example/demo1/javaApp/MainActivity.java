@@ -32,7 +32,10 @@ import com.example.demo1.bean.BlueToothData;
 import com.example.demo1.controller.BlueToothController;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import kotlin.collections.ArrayDeque;
 
@@ -55,8 +58,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        bluetoothOpenReceiver = new BluetoothOpenReceiver();
-        registerReceiver(bluetoothOpenReceiver, new IntentFilter("openblue"));
+
         blueToothStartedReceiver = new BlueToothStartedReceiver();
         blueToothFoundReceiver = new BlueToothFoundReceiver();
         registerReceiver(blueToothStartedReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED));
@@ -106,13 +108,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         recyclerView = findViewById(R.id.bluetoooth_list);
         blueToothDataList = new ArrayDeque<>();
 
-
-
-
         if (!blueToothController.getInstance().isBlueToothOpen()) {
-            showToast("蓝牙未开启,请根据指引启动蓝牙");
-            Intent intent = new Intent("openblue");
-            sendBroadcast(intent);
+            bluetoothOpenReceiver = new BluetoothOpenReceiver();
+            registerReceiver(bluetoothOpenReceiver, new IntentFilter("openblue"));
         }
         button = findViewById(R.id.btn_found);
         button.setOnClickListener(this);
@@ -139,10 +137,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     @Override
                     public void onScanResult(int callbackType, ScanResult result) {
                         super.onScanResult(callbackType, result);
-                        //更新数据源
+                        //更新数据源但是要注意去重set
                         blueToothDataList.add(new BlueToothData(result.getDevice().getName(),result.getDevice().getAddress()));
+                        List<BlueToothData> list = blueToothDataList.stream().distinct().collect(Collectors.toList());
 //                        blueToothListAdapter.notifyDataSetChanged();
-                        blueToothListAdapter = new BlueToothListAdapter(blueToothDataList,MainActivity.this);
+                        blueToothListAdapter = new BlueToothListAdapter(list,MainActivity.this);
                         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
                         recyclerView.setLayoutManager(manager);
                         recyclerView.setAdapter(blueToothListAdapter);
