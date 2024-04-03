@@ -136,10 +136,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
                 scanner.startScan(new ScanCallback() {
                     @Override
-                    public void onScanResult(int callbackType, ScanResult result) {
+                    public  void onScanResult(int callbackType, ScanResult result) {
                         super.onScanResult(callbackType, result);
                         //更新数据源但是要注意去重set
-                        blueToothDataList.add(new BlueToothData(result.getDevice().getName(),result.getDevice().getAddress()));
+                        blueToothDataList.add(new BlueToothData(result.getDevice().getName() == null ? "未知设备" : result.getDevice().getName(),result.getDevice().getAddress()));
                         List<BlueToothData> list = blueToothDataList.stream().distinct().collect(Collectors.toList());
 //                        blueToothListAdapter.notifyDataSetChanged();
                         blueToothListAdapter = new BlueToothListAdapter(list,MainActivity.this);
