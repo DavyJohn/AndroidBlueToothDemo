@@ -43,6 +43,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final int REQUEST_BLUETOOTH_SCAN_PERMISSION = 100;
     private static final int REQ_PERMISSION_CODE = 200;
     private BluetoothOpenReceiver bluetoothOpenReceiver;
+    private boolean isBluetoothOpenReceiverRegistered = false;
     private BlueToothStartedReceiver blueToothStartedReceiver;
     private BlueToothFoundReceiver blueToothFoundReceiver;
 
@@ -58,7 +59,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         blueToothStartedReceiver = new BlueToothStartedReceiver();
         blueToothFoundReceiver = new BlueToothFoundReceiver();
         registerReceiver(blueToothStartedReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED));
@@ -111,6 +111,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         if (!blueToothController.getInstance().isBlueToothOpen()) {
             bluetoothOpenReceiver = new BluetoothOpenReceiver();
             registerReceiver(bluetoothOpenReceiver, new IntentFilter("openblue"));
+            isBluetoothOpenReceiverRegistered = true;
         }
         button = findViewById(R.id.btn_found);
         button.setOnClickListener(this);
@@ -170,8 +171,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(bluetoothOpenReceiver);
-        unregisterReceiver(blueToothFoundReceiver);
+        if (isBluetoothOpenReceiverRegistered){
+            unregisterReceiver(bluetoothOpenReceiver);
+            isBluetoothOpenReceiverRegistered = false;
+        }
+
+//        unregisterReceiver(blueToothFoundReceiver);
         unregisterReceiver(blueToothStartedReceiver);
     }
 
