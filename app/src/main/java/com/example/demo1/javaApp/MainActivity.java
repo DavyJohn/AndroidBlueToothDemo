@@ -3,11 +3,16 @@ package com.example.demo1.javaApp;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -15,13 +20,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.example.demo1.BaseActivity;
 import com.example.demo1.BroadcastReceiver.BlueToothFoundReceiver;
 import com.example.demo1.BroadcastReceiver.BlueToothStartedReceiver;
 import com.example.demo1.BroadcastReceiver.BluetoothOpenReceiver;
 import com.example.demo1.R;
+import com.example.demo1.adapters.BlueToothListAdapter;
+import com.example.demo1.bean.BlueToothData;
 import com.example.demo1.controller.BlueToothController;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import kotlin.collections.ArrayDeque;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final int REQUEST_BLUETOOTH_SCAN_PERMISSION = 100;
@@ -34,6 +47,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private Button button;
     private BluetoothAdapter bluetoothAdapter;
 
+    private RecyclerView recyclerView;
+    private List<BlueToothData> blueToothDataList;
+    private BlueToothListAdapter blueToothListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +61,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         blueToothFoundReceiver = new BlueToothFoundReceiver();
         registerReceiver(blueToothStartedReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED));
         initView();
-
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 
@@ -88,6 +103,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void initView() {
+        recyclerView = findViewById(R.id.bluetoooth_list);
+        blueToothDataList = new ArrayDeque<>();
+        blueToothListAdapter = new BlueToothListAdapter(blueToothDataList);
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setAdapter(blueToothListAdapter);
+
+
+
         if (!blueToothController.getInstance().isBlueToothOpen()) {
             showToast("蓝牙未开启,请根据指引启动蓝牙");
             Intent intent = new Intent("openblue");
@@ -110,9 +134,27 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1){
 
                 }
-                bluetoothAdapter.startDiscovery(); //开始搜索
-                registerReceiver(blueToothFoundReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+//                bluetoothAdapter.startDiscovery(); //开始搜索
+//                registerReceiver(blueToothFoundReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
 
+                BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
+                scanner.startScan(new ScanCallback() {
+                    @Override
+                    public void onScanResult(int callbackType, ScanResult result) {
+                        super.onScanResult(callbackType, result);
+                        System.out.println(result);
+                    }
+
+                    @Override
+                    public void onBatchScanResults(List<ScanResult> results) {
+                        super.onBatchScanResults(results);
+                    }
+
+                    @Override
+                    public void onScanFailed(int errorCode) {
+                        super.onScanFailed(errorCode);
+                    }
+                });
 
             }else {
                 Intent intent = new Intent("openblue");
