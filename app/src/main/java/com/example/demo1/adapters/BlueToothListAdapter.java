@@ -1,5 +1,6 @@
 package com.example.demo1.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
@@ -18,15 +19,11 @@ import kotlin.collections.ArrayDeque;
 
 public class BlueToothListAdapter  extends RecyclerView.Adapter<BlueToothListAdapter.BlueToothViewHolder>  {
     private List<BlueToothData> blueToothDataList = new ArrayDeque<>();
-
-    public BlueToothListAdapter(List<BlueToothData> data){
-        blueToothDataList.addAll(data);
-
+    private Context context;
+    public BlueToothListAdapter(List<BlueToothData> data, Context context){
+        this.context = context;
+        this.blueToothDataList.addAll(data);
     }
-
-
-
-
     @NonNull
     @Override
     public BlueToothViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -45,15 +42,15 @@ public class BlueToothListAdapter  extends RecyclerView.Adapter<BlueToothListAda
 
     @Override
     public int getItemCount() {
-        return 0;
+        return blueToothDataList.size();
     }
 
     interface OnItemClickListener{
         void onTemClick(View view,int position);
     }
 
-    public class  BlueToothViewHolder extends RecyclerView.ViewHolder{
-        private TextView blueToothName,blueToothAddress;
+    public static class  BlueToothViewHolder extends RecyclerView.ViewHolder{
+        private final TextView blueToothName,blueToothAddress;
         public BlueToothViewHolder(@NonNull View itemView) {
             super(itemView);
             // 初始化控件

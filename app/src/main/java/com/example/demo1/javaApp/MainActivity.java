@@ -105,10 +105,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private void initView() {
         recyclerView = findViewById(R.id.bluetoooth_list);
         blueToothDataList = new ArrayDeque<>();
-        blueToothListAdapter = new BlueToothListAdapter(blueToothDataList);
-        LinearLayoutManager manager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(manager);
-        recyclerView.setAdapter(blueToothListAdapter);
+
 
 
 
@@ -142,7 +139,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     @Override
                     public void onScanResult(int callbackType, ScanResult result) {
                         super.onScanResult(callbackType, result);
-                        System.out.println(result);
+                        //更新数据源
+                        blueToothDataList.add(new BlueToothData(result.getDevice().getName(),result.getDevice().getAddress()));
+//                        blueToothListAdapter.notifyDataSetChanged();
+                        blueToothListAdapter = new BlueToothListAdapter(blueToothDataList,MainActivity.this);
+                        LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
+                        recyclerView.setLayoutManager(manager);
+                        recyclerView.setAdapter(blueToothListAdapter);
                     }
 
                     @Override
