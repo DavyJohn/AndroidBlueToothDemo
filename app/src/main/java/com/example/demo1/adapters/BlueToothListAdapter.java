@@ -22,9 +22,17 @@ import kotlin.collections.ArrayDeque;
 public class BlueToothListAdapter  extends RecyclerView.Adapter<BlueToothListAdapter.BlueToothViewHolder>  {
     private List<BlueToothData> blueToothDataList = new ArrayDeque<>();
     private Context context;
-    public BlueToothListAdapter(List<BlueToothData> data, Context context){
+
+    private BlueToothListAdapter.OnItemClickListener listener;
+    public BlueToothListAdapter( Context context){
         this.context = context;
-        this.blueToothDataList.addAll(data);
+    }
+    public void seData(List<BlueToothData> data){
+        if (data.size()>0){
+            this.blueToothDataList.clear();
+            this.blueToothDataList.addAll(data);
+            notifyDataSetChanged();
+        }
     }
     @NonNull
     @Override
@@ -47,10 +55,12 @@ public class BlueToothListAdapter  extends RecyclerView.Adapter<BlueToothListAda
         return blueToothDataList.size();
     }
 
-    interface OnItemClickListener{
-        void onTemClick(View view,int position);
+    public interface OnItemClickListener{
+        void onTemClick(View view,int position,BlueToothData blueToothData);
     }
-
+    public void setOnClickListener(OnItemClickListener onItemClickListener){
+        this.listener = onItemClickListener;
+    }
     public static class  BlueToothViewHolder extends RecyclerView.ViewHolder{
         private final TextView blueToothName,blueToothAddress;
         public BlueToothViewHolder(@NonNull View itemView) {

@@ -17,11 +17,11 @@ public class BlueToothStartedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(BluetoothDevice.ACTION_FOUND)) {
-
+//            Toast.makeText(context,"搜索中", Toast.LENGTH_SHORT).show();
         }else if (intent.getAction().equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)){
-            Toast.makeText(context,"搜索完毕", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context,"搜索完毕", Toast.LENGTH_SHORT).show();
         }else if (intent.getAction().equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)){
-            Toast.makeText(context,"搜索开始", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context,"搜索开始", Toast.LENGTH_SHORT).show();
 //            context.registerReceiver(blueToothFoundReceiver,new IntentFilter("ndroid.bluetooth.device.action.FOUND"));
         }
         }

@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@color/teal_700"
-        android:text="寻找设备"
+        android:text="@string/start_found"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginBottom="80dp"

@@ -44,6 +44,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final int REQ_PERMISSION_CODE = 200;
     private BluetoothOpenReceiver bluetoothOpenReceiver;
     private boolean isBluetoothOpenReceiverRegistered = false;
+
+    private boolean isScnning = false;
     private BlueToothStartedReceiver blueToothStartedReceiver;
     private BlueToothFoundReceiver blueToothFoundReceiver;
 
@@ -105,8 +107,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void initView() {
+        // start recyclerview
         recyclerView = findViewById(R.id.bluetoooth_list);
         blueToothDataList = new ArrayDeque<>();
+        blueToothListAdapter = new BlueToothListAdapter(MainActivity.this);
+        blueToothListAdapter.seData(blueToothDataList);
+        LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setAdapter(blueToothListAdapter);
+        blueToothListAdapter.setOnClickListener(new BlueToothListAdapter.OnItemClickListener() {
+            @Override
+            public void onTemClick(View view, int position, BlueToothData blueToothData) {
+                showToast(blueToothData.getName());
+            }
+        });
+        //end
+
 
         if (!blueToothController.getInstance().isBlueToothOpen()) {
             bluetoothOpenReceiver = new BluetoothOpenReceiver();
@@ -124,41 +140,30 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         if (v.getId() == R.id.btn_found) {
             //判断蓝牙是否开启
             if (BlueToothController.getInstance().isBlueToothOpen()){
-                //寻找周边蓝牙设备
-//                Intent intent = new Intent(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-//                sendBroadcast(intent);
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1){
-
+                BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
+                MyScanCallBack myScanCallBack = new MyScanCallBack();
+                if (!isScnning){
+                    isScnning = true;
+                    scanner.startScan(myScanCallBack);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            button.setText(R.string.stop_found);
+                        }
+                    }).start();
+                }else {
+                    isScnning = false;
+                    scanner.stopScan(myScanCallBack);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            button.setText(R.string.start_found);
+                        }
+                    }).start();
                 }
+
 //                bluetoothAdapter.startDiscovery(); //开始搜索
 //                registerReceiver(blueToothFoundReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-
-                BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
-                scanner.startScan(new ScanCallback() {
-                    @Override
-                    public  void onScanResult(int callbackType, ScanResult result) {
-                        super.onScanResult(callbackType, result);
-                        //更新数据源但是要注意去重set
-                        blueToothDataList.add(new BlueToothData(result.getDevice().getName() == null ? "未知设备" : result.getDevice().getName(),result.getDevice().getAddress()));
-                        List<BlueToothData> list = blueToothDataList.stream().distinct().collect(Collectors.toList());
-//                        blueToothListAdapter.notifyDataSetChanged();
-                        blueToothListAdapter = new BlueToothListAdapter(list,MainActivity.this);
-                        LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
-                        recyclerView.setLayoutManager(manager);
-                        recyclerView.setAdapter(blueToothListAdapter);
-                    }
-
-                    @Override
-                    public void onBatchScanResults(List<ScanResult> results) {
-                        super.onBatchScanResults(results);
-                    }
-
-                    @Override
-                    public void onScanFailed(int errorCode) {
-                        super.onScanFailed(errorCode);
-                    }
-                });
-
             }else {
                 Intent intent = new Intent("openblue");
                 sendBroadcast(intent);
@@ -214,5 +219,28 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 }
                 break;
         }
+    }
+
+
+    private class MyScanCallBack extends ScanCallback {
+        @SuppressLint("MissingPermission")
+        public void onScanResult(int callbackType, ScanResult result)
+        {
+            //更新数据源但是要注意去重set
+            blueToothDataList.add(new BlueToothData(result.getDevice().getName() == null ? "未知设备" : result.getDevice().getName(),result.getDevice().getAddress()));
+            List<BlueToothData> list = blueToothDataList.stream().distinct().collect(Collectors.toList());
+
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            super.onBatchScanResults(results);
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+        }
+
     }
 }
