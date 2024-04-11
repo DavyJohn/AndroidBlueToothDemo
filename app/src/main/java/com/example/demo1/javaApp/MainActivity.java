@@ -116,7 +116,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         blueToothListAdapter.setOnClickListener(new BlueToothListAdapter.OnItemClickListener() {
             @Override
             public void onTemClick(View view, int position, BlueToothData blueToothData) {
-                showToast(blueToothData.getName()== "" ? blueToothData.getAddress() : blueToothData.getName());
+                showToast(blueToothData.getAddress()== "" ? blueToothData.getName() : blueToothData.getAddress());
             }
         });
         //end

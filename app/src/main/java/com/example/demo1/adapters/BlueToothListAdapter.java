@@ -1,5 +1,6 @@
 package com.example.demo1.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.TextureView;
@@ -42,16 +43,21 @@ public class BlueToothListAdapter  extends RecyclerView.Adapter<BlueToothListAda
     }
 
     @Override
-    public void onBindViewHolder(@NonNull BlueToothViewHolder blueToothViewHolder, int i) {
+    public void onBindViewHolder(@NonNull BlueToothViewHolder blueToothViewHolder, @SuppressLint("RecyclerView") int i) {
         if (blueToothDataList.size()>0){
             blueToothViewHolder.blueToothName.setText(blueToothDataList.get(i).getName());
             blueToothViewHolder.blueToothAddress.setText(blueToothDataList.get(i).getAddress());
+
+
         }
         if (listener != null){
             blueToothViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    listener.onTemClick(view,i,blueToothDataList.get(i));
+                    int currentPosition = blueToothViewHolder.getAdapterPosition();
+                    if (currentPosition != -1){
+                        listener.onTemClick(view,i,blueToothDataList.get(blueToothViewHolder.getAdapterPosition()));
+                    }
                 }
             });
         }
