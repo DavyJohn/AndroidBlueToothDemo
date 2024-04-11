@@ -23,11 +23,11 @@ public class BlueToothListAdapter  extends RecyclerView.Adapter<BlueToothListAda
     private List<BlueToothData> blueToothDataList = new ArrayDeque<>();
     private Context context;
 
-    private BlueToothListAdapter.OnItemClickListener listener;
+    public BlueToothListAdapter.OnItemClickListener listener;
     public BlueToothListAdapter( Context context){
         this.context = context;
     }
-    public void seData(List<BlueToothData> data){
+    public void setData(List<BlueToothData> data){
         if (data.size()>0){
             this.blueToothDataList.clear();
             this.blueToothDataList.addAll(data);
@@ -46,6 +46,14 @@ public class BlueToothListAdapter  extends RecyclerView.Adapter<BlueToothListAda
         if (blueToothDataList.size()>0){
             blueToothViewHolder.blueToothName.setText(blueToothDataList.get(i).getName());
             blueToothViewHolder.blueToothAddress.setText(blueToothDataList.get(i).getAddress());
+        }
+        if (listener != null){
+            blueToothViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onTemClick(view,i,blueToothDataList.get(i));
+                }
+            });
         }
 
     }

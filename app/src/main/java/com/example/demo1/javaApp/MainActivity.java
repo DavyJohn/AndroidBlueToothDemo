@@ -67,8 +67,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         initView();
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-
-
     }
 
     @Override
@@ -111,14 +109,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         recyclerView = findViewById(R.id.bluetoooth_list);
         blueToothDataList = new ArrayDeque<>();
         blueToothListAdapter = new BlueToothListAdapter(MainActivity.this);
-        blueToothListAdapter.seData(blueToothDataList);
+        blueToothListAdapter.setData(blueToothDataList);
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(blueToothListAdapter);
         blueToothListAdapter.setOnClickListener(new BlueToothListAdapter.OnItemClickListener() {
             @Override
             public void onTemClick(View view, int position, BlueToothData blueToothData) {
-                showToast(blueToothData.getName());
+                showToast(blueToothData.getName()== "" ? blueToothData.getAddress() : blueToothData.getName());
             }
         });
         //end
@@ -229,6 +227,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             //更新数据源但是要注意去重set
             blueToothDataList.add(new BlueToothData(result.getDevice().getName() == null ? "未知设备" : result.getDevice().getName(),result.getDevice().getAddress()));
             List<BlueToothData> list = blueToothDataList.stream().distinct().collect(Collectors.toList());
+            blueToothListAdapter.setData(list);
 
         }
 
